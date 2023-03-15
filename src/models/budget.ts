@@ -22,4 +22,8 @@ export const budgetSchema: mongoose.Schema<Interfaces.Budget> =
       required: true,
       default: 0,
     },
+    date: {
+      type: Date,
+      required: false,
+    },
   });

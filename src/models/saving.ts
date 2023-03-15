@@ -36,6 +36,10 @@ export const savingSchema: mongoose.Schema<Interfaces.Saving> =
     },
     contributors: [contributorSchema],
     spendings: [spendingSchema],
+    date: {
+      type: Date,
+      required: false,
+    },
   });
 
 const Saving = mongoose.model<Interfaces.Saving & mongoose.Document>(

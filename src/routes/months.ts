@@ -93,6 +93,7 @@ router.post("/", async (req, res, next): Promise<void> => {
   } else {
     try {
       newMonth.url = _.kebabCase(req.body.name);
+      newMonth.date = new Date();
 
       const defaults = await Default.findOne({});
 
@@ -125,6 +126,8 @@ router.post("/:id/budget", async (req, res, next): Promise<void> => {
     console.log(error);
   } else {
     try {
+      newBudgetElement.date = new Date();
+
       const query = newBudgetElement.value
         ? { $push: { income: newBudgetElement } }
         : { $push: { budget: newBudgetElement } };
@@ -162,6 +165,7 @@ router.put("/:id/budget/:budgetId", async (req, res, next): Promise<void> => {
             $set: {
               "income.$.name": newBudgetElement.name,
               "income.$.value": newBudgetElement.value,
+              "income.$.date": new Date(),
             },
           }
         : {
@@ -170,6 +174,7 @@ router.put("/:id/budget/:budgetId", async (req, res, next): Promise<void> => {
               "budget.$.plan": newBudgetElement.plan,
               "budget.$.actual": newBudgetElement.actual,
               "budget.$.categoryId": newBudgetElement.categoryId,
+              "budget.$.date": new Date(),
             },
           };
 
@@ -198,6 +203,7 @@ router.put("/:id/update/", async (req, res, next): Promise<void> => {
             balance: update.balance,
             opening: update.opening,
             comment: update.comment,
+            date: new Date(),
           },
         }
       );
@@ -224,6 +230,7 @@ router.put("/:id/toggleclose/", async (req, res, next): Promise<void> => {
           $set: {
             closed: update.closed,
             sumAllSavings: update.sumAllSavings,
+            closedAt: new Date(),
           },
         }
       );
@@ -287,6 +294,8 @@ router.put("/:id", async (req, res, next): Promise<void> => {
     res.status(400).send(error.details[0].message);
   } else {
     try {
+      newMonth.date = new Date();
+
       const updatedMonth = await Month.findByIdAndUpdate(
         req.params.id,
         newMonth

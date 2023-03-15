@@ -44,6 +44,8 @@ server.use((req, res) => {
   res.status(404).json({ error: "not found" }).end();
 });
 
+mongoose.set("strictQuery", true);
+
 const main = async (): Promise<void> => {
   await mongoose
     .connect(config.MONGO_PATH)

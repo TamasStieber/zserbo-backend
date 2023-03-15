@@ -50,6 +50,8 @@ router.post("/", async (req, res, next): Promise<void> => {
     console.log(error);
   } else {
     try {
+      // newDefault.date = new Date();
+
       const query = newDefault.value
         ? { $push: { income: newDefault } }
         : { $push: { budget: newDefault } };
@@ -86,6 +88,7 @@ router.put("/:id", async (req, res, next): Promise<void> => {
             $set: {
               "income.$.name": newDefault.name,
               "income.$.value": newDefault.value,
+              // "income.$.date": new Date(),
             },
           }
         : {
@@ -94,6 +97,7 @@ router.put("/:id", async (req, res, next): Promise<void> => {
               "budget.$.plan": newDefault.plan,
               "budget.$.actual": newDefault.actual,
               "budget.$.categoryId": newDefault.categoryId,
+              // "budget.$.date": new Date(),
             },
           };
 
