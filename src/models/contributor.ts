@@ -17,4 +17,8 @@ export const contributorSchema: mongoose.Schema<Interfaces.Contributor> =
       required: true,
       default: 0,
     },
+    date: {
+      type: Date,
+      required: false,
+    },
   });

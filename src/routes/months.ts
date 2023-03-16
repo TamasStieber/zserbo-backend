@@ -93,6 +93,7 @@ router.post("/", async (req, res, next): Promise<void> => {
   } else {
     try {
       newMonth.url = _.kebabCase(req.body.name);
+      newMonth.date = new Date();
 
       const defaults = await Default.findOne({});
 
@@ -125,6 +126,8 @@ router.post("/:id/budget", async (req, res, next): Promise<void> => {
     console.log(error);
   } else {
     try {
+      newBudgetElement.date = new Date();
+
       const query = newBudgetElement.value
         ? { $push: { income: newBudgetElement } }
         : { $push: { budget: newBudgetElement } };
@@ -157,11 +160,23 @@ router.put("/:id/budget/:budgetId", async (req, res, next): Promise<void> => {
             _id: req.params.id,
             budget: { $elemMatch: { _id: req.params.budgetId } },
           };
+
+      if (newBudgetElement.plan) {
+        const previousState = await Month.findOne(filter);
+
+        const foundElement = previousState?.budget.find(
+          (element) => element._id.toString() === req.params.budgetId
+        );
+        if (foundElement && foundElement.actual !== newBudgetElement.actual)
+          newBudgetElement.date = new Date();
+      }
+
       const query = newBudgetElement.value
         ? {
             $set: {
               "income.$.name": newBudgetElement.name,
               "income.$.value": newBudgetElement.value,
+              "income.$.date": new Date(),
             },
           }
         : {
@@ -170,6 +185,7 @@ router.put("/:id/budget/:budgetId", async (req, res, next): Promise<void> => {
               "budget.$.plan": newBudgetElement.plan,
               "budget.$.actual": newBudgetElement.actual,
               "budget.$.categoryId": newBudgetElement.categoryId,
+              "budget.$.date": newBudgetElement.date,
             },
           };
 
@@ -198,6 +214,7 @@ router.put("/:id/update/", async (req, res, next): Promise<void> => {
             balance: update.balance,
             opening: update.opening,
             comment: update.comment,
+            date: new Date(),
           },
         }
       );
@@ -224,6 +241,7 @@ router.put("/:id/toggleclose/", async (req, res, next): Promise<void> => {
           $set: {
             closed: update.closed,
             sumAllSavings: update.sumAllSavings,
+            closedAt: new Date(),
           },
         }
       );
@@ -243,7 +261,7 @@ router.delete(
         $pull: { income: { _id: req.params.incomeId } },
       });
 
-      res.status(200).json({ incomeToDelete });
+      res.status(200).json({ id: req.params.id });
     } catch {
       next(res.status(500).json({ error: "internal server error" }));
     }
@@ -258,7 +276,7 @@ router.delete(
         $pull: { budget: { _id: req.params.expenseId } },
       });
 
-      res.status(200).json({ budgetToDelete });
+      res.status(200).json({ id: req.params.id });
     } catch {
       next(res.status(500).json({ error: "internal server error" }));
     }
@@ -269,10 +287,10 @@ router.post("/update-default/:id", async (req, res, next): Promise<void> => {
   try {
     await Month.updateMany({}, { $set: { default: false } });
 
-    const updatedMonth = await Month.findByIdAndUpdate(req.params.id, {
+    await Month.findByIdAndUpdate(req.params.id, {
       $set: { default: true },
     });
-    res.status(200).json({ food: updatedMonth });
+    res.status(200).json({ id: req.params.id });
   } catch {
     next(res.status(500).json({ error: "internal server error" }));
   }
@@ -287,6 +305,8 @@ router.put("/:id", async (req, res, next): Promise<void> => {
     res.status(400).send(error.details[0].message);
   } else {
     try {
+      newMonth.date = new Date();
+
       const updatedMonth = await Month.findByIdAndUpdate(
         req.params.id,
         newMonth

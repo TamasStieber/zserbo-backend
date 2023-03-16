@@ -61,6 +61,7 @@ router.post("/", async (req, res, next): Promise<void> => {
     try {
       newSaving.contributors = [];
       newSaving.spendings = [];
+      newSaving.date = new Date();
 
       const saving = await Saving.create(newSaving);
 
@@ -80,6 +81,8 @@ router.put("/:id", async (req, res, next): Promise<void> => {
     res.status(400).send(error.details[0].message);
   } else {
     try {
+      newSaving.date = new Date();
+
       const saving = await Saving.findByIdAndUpdate(req.params.id, newSaving);
 
       res.status(200).json({ saving: saving });
@@ -99,6 +102,8 @@ router.post("/:id/contributors/", async (req, res, next): Promise<void> => {
     console.log(error);
   } else {
     try {
+      newContributor.date = new Date();
+
       const contributor = await Saving.findByIdAndUpdate(req.params.id, {
         $push: { contributors: newContributor },
       });
@@ -130,6 +135,7 @@ router.put(
             $set: {
               "contributors.$.plan": newContributor.plan,
               "contributors.$.actual": newContributor.actual,
+              "contributors.$.date": new Date(),
             },
           }
         );
@@ -168,6 +174,8 @@ router.post("/:id/spendings/", async (req, res, next): Promise<void> => {
     console.log(error);
   } else {
     try {
+      newSpending.date = new Date();
+
       const spending = await Saving.findByIdAndUpdate(req.params.id, {
         $push: { spendings: newSpending },
       });
@@ -198,6 +206,7 @@ router.put(
           {
             $set: {
               "spendings.$.amount": newSpending.amount,
+              "spendings.$.date": new Date(),
             },
           }
         );

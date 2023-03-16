@@ -7,6 +7,7 @@ export type Income = {
   _id: string;
   name: string;
   value: number;
+  date: Date;
 };
 
 export type Budget = {
@@ -15,6 +16,7 @@ export type Budget = {
   plan: number;
   actual: number;
   categoryId: number;
+  date: Date;
 };
 
 export type Contributor = {
@@ -22,12 +24,14 @@ export type Contributor = {
   monthId: string;
   plan: number;
   actual: number;
+  date: Date;
 };
 
 export type Spending = {
   _id: string;
   amount: number;
   monthId: string;
+  date: Date;
 };
 
 export type Saving = {
@@ -40,12 +44,14 @@ export type Saving = {
   actual: number;
   contributors: Contributor[];
   spendings: Spending[];
+  date: Date;
 };
 
 export type Default = {
   _id: string;
   income: Income[];
   budget: Budget[];
+  date: Date;
 };
 
 export type NewDefaultEntry = {
@@ -55,6 +61,7 @@ export type NewDefaultEntry = {
   plan?: number;
   actual?: number;
   categoryId?: number;
+  date?: Date;
 };
 
 export type Month = {
@@ -70,6 +77,8 @@ export type Month = {
   budget: Budget[];
   comment: string;
   sumAllSavings: number;
+  date: Date;
+  closedAt: Date;
 };
 
 export type UpdateEntry = {
