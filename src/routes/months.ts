@@ -160,6 +160,17 @@ router.put("/:id/budget/:budgetId", async (req, res, next): Promise<void> => {
             _id: req.params.id,
             budget: { $elemMatch: { _id: req.params.budgetId } },
           };
+
+      if (newBudgetElement.plan) {
+        const previousState = await Month.findOne(filter);
+
+        const foundElement = previousState?.budget.find(
+          (element) => element._id.toString() === req.params.budgetId
+        );
+        if (foundElement && foundElement.actual !== newBudgetElement.actual)
+          newBudgetElement.date = new Date();
+      }
+
       const query = newBudgetElement.value
         ? {
             $set: {
@@ -174,7 +185,7 @@ router.put("/:id/budget/:budgetId", async (req, res, next): Promise<void> => {
               "budget.$.plan": newBudgetElement.plan,
               "budget.$.actual": newBudgetElement.actual,
               "budget.$.categoryId": newBudgetElement.categoryId,
-              "budget.$.date": new Date(),
+              "budget.$.date": newBudgetElement.date,
             },
           };
 
@@ -250,7 +261,7 @@ router.delete(
         $pull: { income: { _id: req.params.incomeId } },
       });
 
-      res.status(200).json({ incomeToDelete });
+      res.status(200).json({ id: req.params.id });
     } catch {
       next(res.status(500).json({ error: "internal server error" }));
     }
@@ -265,7 +276,7 @@ router.delete(
         $pull: { budget: { _id: req.params.expenseId } },
       });
 
-      res.status(200).json({ budgetToDelete });
+      res.status(200).json({ id: req.params.id });
     } catch {
       next(res.status(500).json({ error: "internal server error" }));
     }
@@ -276,10 +287,10 @@ router.post("/update-default/:id", async (req, res, next): Promise<void> => {
   try {
     await Month.updateMany({}, { $set: { default: false } });
 
-    const updatedMonth = await Month.findByIdAndUpdate(req.params.id, {
+    await Month.findByIdAndUpdate(req.params.id, {
       $set: { default: true },
     });
-    res.status(200).json({ food: updatedMonth });
+    res.status(200).json({ id: req.params.id });
   } catch {
     next(res.status(500).json({ error: "internal server error" }));
   }

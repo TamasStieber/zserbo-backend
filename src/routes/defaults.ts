@@ -60,7 +60,7 @@ router.post("/", async (req, res, next): Promise<void> => {
 
       if (!collectionContent) await Default.create({ income: [], budget: [] });
 
-      const defaultEntry = await Default.findOneAndUpdate({}, query);
+      await Default.findOneAndUpdate({}, query);
 
       res.status(201).json({ default: newDefault });
     } catch {
@@ -101,7 +101,7 @@ router.put("/:id", async (req, res, next): Promise<void> => {
             },
           };
 
-      const defaultEntry = await Default.findOneAndUpdate(filter, query);
+      await Default.findOneAndUpdate(filter, query);
 
       res.status(200).json({ default: newDefault });
     } catch {
@@ -112,12 +112,12 @@ router.put("/:id", async (req, res, next): Promise<void> => {
 
 router.delete("/income/:id", async (req, res, next): Promise<void> => {
   try {
-    const incomeToDelete = await Default.findOneAndUpdate(
+    await Default.findOneAndUpdate(
       {},
       { $pull: { income: { _id: req.params.id } } }
     );
 
-    res.status(200).json({ incomeToDelete });
+    res.status(200).json({ id: req.params.id });
   } catch {
     next(res.status(500).json({ error: "internal server error" }));
   }
@@ -125,12 +125,12 @@ router.delete("/income/:id", async (req, res, next): Promise<void> => {
 
 router.delete("/expense/:id", async (req, res, next): Promise<void> => {
   try {
-    const budgetToDelete = await Default.findOneAndUpdate(
+    await Default.findOneAndUpdate(
       {},
       { $pull: { budget: { _id: req.params.id } } }
     );
 
-    res.status(200).json({ budgetToDelete });
+    res.status(200).json({ id: req.params.id });
   } catch {
     next(res.status(500).json({ error: "internal server error" }));
   }
